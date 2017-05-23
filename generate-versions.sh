@@ -6,11 +6,15 @@ cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 archs='amd64'
 
 declare -A rels=(
-	[amd64]='1.0'
+	[amd64]='morty'
+)
+
+declare -A pokyVersion=(
+	[amd64-morty]='2.2.1'
 )
 
 declare -A ubuntuVersion=(
-	[amd64-1.0]='14.04'
+	[amd64-morty]='14.04'
 )
 
 for arch in $archs; do
@@ -21,6 +25,7 @@ for arch in $archs; do
 		cp poky-deps.tar.gz $dockerfilePath/poky-deps.tar.gz
 
 		sed -e s~#{ARCH}~"$arch"~g \
+			-e s~#{POKY_VERSION}~"${pokyVersion[$arch-$rel]}"~g \
 			-e s~#{UBUNTU_VERSION}~"${ubuntuVersion[$arch-$rel]}"~g \
 			Dockerfile.template > $dockerfilePath/Dockerfile
 	done

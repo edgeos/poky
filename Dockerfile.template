@@ -11,6 +11,7 @@ LABEL io.predix.architecture="#{ARCH}"
 COPY poky-deps.tar.gz /src/poky-deps.tar.gz
 WORKDIR /src
 
+ENV POKY_VERSION #{POKY_VERSION}
 ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
 
 RUN tar -xzf poky-deps.tar.gz && \
