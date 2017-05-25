@@ -90,4 +90,4 @@ RUN tar -xzf poky-deps.tar.gz && \
 USER usersetup
 ENV LANG=en_US.UTF-8
 
-ENTRYPOINT ["/src/poky-entry.py"]
+ENTRYPOINT ["/usr/bin/poky-entry.py"]
