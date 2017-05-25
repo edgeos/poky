@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAME="node"
+NAME="poky"
 REG="registry.gear.ge.com/predix_edge"
 
 versionsDir="$(dirname "$(readlink -f "$BASH_SOURCE")")/versions"
