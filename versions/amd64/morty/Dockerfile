@@ -1,0 +1,93 @@
+#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "generate-versions.sh"
+#
+# PLEASE DO NOT EDIT IT DIRECTLY.
+#
+
+FROM ubuntu:14.04
+
+LABEL io.predix.architecture="amd64"
+
+COPY poky-deps.tar.gz /src/poky-deps.tar.gz
+WORKDIR /src
+
+ENV POKY_VERSION 2.2.1
+ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
+
+RUN tar -xzf poky-deps.tar.gz && \
+	apt-get update && \
+	apt-get install -y \
+		gawk \
+		wget \
+		git-core \
+		diffstat \
+		unzip \
+		sysstat \
+		texinfo \
+		gcc-multilib \
+		build-essential \
+		chrpath \
+		socat \
+		python3 \
+		libsdl1.2-dev  \
+		xz-utils  \
+		locales \
+		screen \
+		tmux \
+		tightvncserver \
+		jq \
+		nodejs \
+		lsb-release \
+		libfuse2 \
+		trousers \
+		tpm-tools \
+		expect \
+		libtasn1-6 \
+		gnutls-bin \
+		npm && \
+	\
+	npm install npm@4.x -g && \
+	ln -s /usr/bin/nodejs /usr/bin/node && \
+	wget -qO- http://yum.dockerproject.org/gpg | apt-key add - && \
+	echo "deb http://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main" > /etc/apt/sources.list.d/docker.list && \
+	apt-get update && \
+	apt-get install -y docker-engine=1.11.2-0~trusty && \
+	dpkg -i /src/swtpm/libtpms_0.6.0_amd64.deb \
+			/src/swtpm/libtpms-dev_0.6.0_all.deb \
+			/src/swtpm/swtpm_0.1.0_amd64.deb \
+			/src/swtpm/swtpm-cuse_0.1.0_amd64.deb \
+			/src/swtpm/swtpm-dev_0.1.0_all.deb \
+			/src/swtpm/swtpm-libs_0.1.0_amd64.deb \
+			/src/swtpm/swtpm-tools_0.1.0_amd64.deb && \
+	/usr/sbin/locale-gen en_US.UTF-8 && \
+	\
+	mv build-install-dumb-init.sh / && \
+	bash /build-install-dumb-init.sh && \
+	rm /build-install-dumb-init.sh && \
+	apt-get clean && \
+	\
+	wget -qO- "${EXTSDK_URL}/restrict_useradd.sh" > /usr/bin/restrict_useradd.sh && \
+	wget -qO- "${EXTSDK_URL}/restrict_groupadd.sh" > /usr/bin/restrict_groupadd.sh && \
+	wget -qO- "${EXTSDK_URL}/usersetup.py" > /usr/bin/usersetup.py && \
+	\
+	mv poky-entry.py /usr/bin/poky-entry.py && \
+	mv poky-launch.sh /usr/bin/poky-launch.sh && \
+	mv add-vtpm.sh /usr/bin/add-vtpm.sh && \
+	mv sudoers.usersetup /etc/ && \
+	\
+	# We remove the user because we add a new one of our own.
+	# The usersetup user is solely for adding a new user that has the same uid,
+	# as the workspace. 70 is an arbitrary *low* unused uid on debian.
+	groupadd -g 70 usersetup && \
+	useradd -N -m -u 70 -g 70 usersetup && \
+	chmod 755 /usr/bin/usersetup.py \
+		/usr/bin/poky-entry.py \
+		/usr/bin/poky-launch.sh \
+		/usr/bin/restrict_groupadd.sh \
+		/usr/bin/restrict_useradd.sh && \
+	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers
+
+USER usersetup
+ENV LANG=en_US.UTF-8
+
+ENTRYPOINT ["/usr/bin/poky-entry.py"]
