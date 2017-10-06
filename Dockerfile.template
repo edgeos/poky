@@ -18,6 +18,7 @@ RUN tar -xzf poky-deps.tar.gz && \
 	apt-get update && \
 	apt-get install -y \
 		gawk \
+		curl \
 		wget \
 		git-core \
 		diffstat \
