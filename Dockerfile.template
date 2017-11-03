@@ -4,14 +4,14 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM ubuntu:#{UBUNTU_VERSION}
+FROM ubuntu:14.04
 
-LABEL io.predix.architecture="#{ARCH}"
+LABEL io.predix.architecture="amd64"
 
 COPY poky-deps.tar.gz /src/poky-deps.tar.gz
 WORKDIR /src
 
-ENV POKY_VERSION #{POKY_VERSION}
+ENV POKY_VERSION 2.2.1
 ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
 
 RUN tar -xzf poky-deps.tar.gz && \
@@ -67,13 +67,13 @@ RUN tar -xzf poky-deps.tar.gz && \
 	rm /build-install-dumb-init.sh && \
 	apt-get clean && \
 	\
-	wget -qO- "${EXTSDK_URL}/restrict_useradd.sh" > /usr/bin/restrict_useradd.sh && \
 	wget -qO- "${EXTSDK_URL}/restrict_groupadd.sh" > /usr/bin/restrict_groupadd.sh && \
-	wget -qO- "${EXTSDK_URL}/usersetup.py" > /usr/bin/usersetup.py && \
 	\
 	mv poky-entry.py /usr/bin/poky-entry.py && \
 	mv poky-launch.sh /usr/bin/poky-launch.sh && \
 	mv add-vtpm.sh /usr/bin/add-vtpm.sh && \
+	mv usersetup.py /usr/bin/usersetup.py && \
+	mv restrict_useradd.sh /usr/bin/restrict_useradd.sh && \
 	mv sudoers.usersetup /etc/ && \
 	\
 	# We remove the user because we add a new one of our own.
@@ -86,6 +86,9 @@ RUN tar -xzf poky-deps.tar.gz && \
 		/usr/bin/poky-launch.sh \
 		/usr/bin/restrict_groupadd.sh \
 		/usr/bin/restrict_useradd.sh && \
+        chown root:root /etc/sudoers.usersetup \
+                        /usr/bin/usersetup.py \
+                        /usr/bin/restrict_useradd.sh && \
 	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers
 
 USER usersetup
