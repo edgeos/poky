@@ -45,7 +45,10 @@ RUN tar -xzf poky-deps.tar.gz && \
 		expect \
 		libtasn1-6 \
 		gnutls-bin \
-		npm && \
+		npm \
+		qemu-system \
+		qemu-kvm \
+		qemu-utils && \
 	\
 	npm install npm@4.x -g && \
 	ln -s /usr/bin/nodejs /usr/bin/node && \
