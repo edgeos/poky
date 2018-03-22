@@ -18,6 +18,7 @@ RUN tar -xzf poky-deps.tar.gz && \
 	apt-get update && \
 	apt-get install -y \
 		gawk \
+		curl \
 		wget \
 		git-core \
 		diffstat \
@@ -44,7 +45,10 @@ RUN tar -xzf poky-deps.tar.gz && \
 		expect \
 		libtasn1-6 \
 		gnutls-bin \
-		npm && \
+		npm \
+		qemu-system \
+		qemu-kvm \
+		qemu-utils && \
 	\
 	npm install npm@4.x -g && \
 	ln -s /usr/bin/nodejs /usr/bin/node && \
