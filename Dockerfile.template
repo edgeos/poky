@@ -18,6 +18,7 @@ RUN tar -xzf poky-deps.tar.gz && \
 	apt-get update && \
 	apt-get install -y \
 		gawk \
+		curl \
 		wget \
 		git-core \
 		diffstat \
@@ -44,7 +45,10 @@ RUN tar -xzf poky-deps.tar.gz && \
 		expect \
 		libtasn1-6 \
 		gnutls-bin \
-		npm && \
+		npm \
+		qemu-system \
+		qemu-kvm \
+		qemu-utils && \
 	\
 	npm install npm@4.x -g && \
 	ln -s /usr/bin/nodejs /usr/bin/node && \
@@ -66,13 +70,13 @@ RUN tar -xzf poky-deps.tar.gz && \
 	rm /build-install-dumb-init.sh && \
 	apt-get clean && \
 	\
-	wget -qO- "${EXTSDK_URL}/restrict_useradd.sh" > /usr/bin/restrict_useradd.sh && \
 	wget -qO- "${EXTSDK_URL}/restrict_groupadd.sh" > /usr/bin/restrict_groupadd.sh && \
-	wget -qO- "${EXTSDK_URL}/usersetup.py" > /usr/bin/usersetup.py && \
 	\
 	mv poky-entry.py /usr/bin/poky-entry.py && \
 	mv poky-launch.sh /usr/bin/poky-launch.sh && \
 	mv add-vtpm.sh /usr/bin/add-vtpm.sh && \
+	mv usersetup.py /usr/bin/usersetup.py && \
+	mv restrict_useradd.sh /usr/bin/restrict_useradd.sh && \
 	mv sudoers.usersetup /etc/ && \
 	\
 	# We remove the user because we add a new one of our own.
@@ -85,6 +89,9 @@ RUN tar -xzf poky-deps.tar.gz && \
 		/usr/bin/poky-launch.sh \
 		/usr/bin/restrict_groupadd.sh \
 		/usr/bin/restrict_useradd.sh && \
+        chown root:root /etc/sudoers.usersetup \
+                        /usr/bin/usersetup.py \
+                        /usr/bin/restrict_useradd.sh && \
 	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers
 
 USER usersetup
