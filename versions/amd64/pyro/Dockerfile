@@ -4,14 +4,14 @@
 # PLEASE DO NOT EDIT IT DIRECTLY.
 #
 
-FROM ubuntu:#{UBUNTU_VERSION}
+FROM ubuntu:16.04
 
-LABEL io.predix.architecture="#{ARCH}"
+LABEL io.predix.architecture="amd64"
 
 COPY poky-deps.tar.gz /src/poky-deps.tar.gz
 WORKDIR /src
 
-ENV POKY_VERSION #{POKY_VERSION}
+ENV POKY_VERSION 2.3.0
 ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
 
 RUN tar -xzf poky-deps.tar.gz && \
