@@ -11,7 +11,7 @@ LABEL io.predix.architecture="amd64"
 COPY poky-deps.tar.gz /src/poky-deps.tar.gz
 WORKDIR /src
 
-ENV POKY_VERSION 2.3.0
+ENV POKY_VERSION 2.3.1
 ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
 
 RUN tar -xzf poky-deps.tar.gz && \
@@ -95,7 +95,10 @@ RUN tar -xzf poky-deps.tar.gz && \
         chown root:root /etc/sudoers.usersetup \
                         /usr/bin/usersetup.py \
                         /usr/bin/restrict_useradd.sh && \
-	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers
+	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers && \
+    /bin/bash VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --console \
+        --required --eulas-agreed && \
+    rm -f VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle
 
 USER usersetup
 ENV LANG=en_US.UTF-8
