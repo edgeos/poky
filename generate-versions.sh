@@ -6,15 +6,15 @@ cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 archs='amd64'
 
 declare -A rels=(
-	[amd64]='morty'
+	[amd64]='pyro'
 )
 
 declare -A pokyVersion=(
-	[amd64-morty]='2.2.1'
+	[amd64-pyro]='2.3.1'
 )
 
 declare -A ubuntuVersion=(
-	[amd64-morty]='14.04'
+	[amd64-pyro]='16.04'
 )
 
 for arch in $archs; do

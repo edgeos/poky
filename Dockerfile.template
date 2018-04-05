@@ -48,14 +48,17 @@ RUN tar -xzf poky-deps.tar.gz && \
 		npm \
 		qemu-system \
 		qemu-kvm \
-		qemu-utils && \
+		qemu-utils \
+		sudo \
+		cpio \
+		iputils-ping && \
 	\
 	npm install npm@4.x -g && \
 	ln -s /usr/bin/nodejs /usr/bin/node && \
 	wget -qO- http://yum.dockerproject.org/gpg | apt-key add - && \
 	echo "deb http://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main" > /etc/apt/sources.list.d/docker.list && \
 	apt-get update && \
-	apt-get install -y docker-engine=1.11.2-0~trusty && \
+	apt-get install -y docker-engine && \
 	dpkg -i /src/swtpm/libtpms_0.6.0_amd64.deb \
 			/src/swtpm/libtpms-dev_0.6.0_all.deb \
 			/src/swtpm/swtpm_0.1.0_amd64.deb \
@@ -92,7 +95,10 @@ RUN tar -xzf poky-deps.tar.gz && \
         chown root:root /etc/sudoers.usersetup \
                         /usr/bin/usersetup.py \
                         /usr/bin/restrict_useradd.sh && \
-	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers
+	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers && \
+    /bin/bash VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --console \
+        --required --eulas-agreed && \
+    rm -f VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle
 
 USER usersetup
 ENV LANG=en_US.UTF-8
