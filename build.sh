@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 NAME="poky"
 REG="registry.gear.ge.com/predix_edge"
 
