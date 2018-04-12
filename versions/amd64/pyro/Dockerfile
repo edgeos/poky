@@ -74,6 +74,8 @@ RUN tar -xzf poky-deps.tar.gz && \
 	apt-get clean && \
 	\
 	wget -qO- "${EXTSDK_URL}/restrict_groupadd.sh" > /usr/bin/restrict_groupadd.sh && \
+        #Update groupadd to check for group before adding, if group exists update gid to match host
+        sed -i "s%groupadd%(grep -q ^\$groupname: /etc/group \&\& groupmod -g \$gid \$groupname) || groupadd%" /usr/bin/restrict_groupadd.sh && \
 	\
 	mv poky-entry.py /usr/bin/poky-entry.py && \
 	mv poky-launch.sh /usr/bin/poky-launch.sh && \
