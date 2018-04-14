@@ -11,7 +11,7 @@ LABEL io.predix.architecture="amd64"
 COPY poky-deps.tar.gz /src/poky-deps.tar.gz
 WORKDIR /src
 
-ENV POKY_VERSION 2.3.1
+ENV POKY_VERSION 2.3.2
 ENV EXTSDK_URL https://raw.githubusercontent.com/crops/extsdk-container/master/
 
 RUN tar -xzf poky-deps.tar.gz && \
@@ -30,6 +30,7 @@ RUN tar -xzf poky-deps.tar.gz && \
 		chrpath \
 		socat \
 		python3 \
+		python-setuptools \
 		libsdl1.2-dev  \
 		xz-utils  \
 		locales \
@@ -100,7 +101,12 @@ RUN tar -xzf poky-deps.tar.gz && \
 	echo "#include /etc/sudoers.usersetup" >> /etc/sudoers && \
     /bin/bash VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle --console \
         --required --eulas-agreed && \
-    rm -f VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle
+    rm -f VMware-ovftool-4.2.0-5965791-lin.x86_64.bundle && \
+    tar -xzf manage-esxi-vm-1.0.tar.gz && \
+        cd manage-esxi-vm-1.0 && \
+        python setup.py install && \
+        cd .. && \
+        rm -rf manage-esxi-vm*
 
 USER usersetup
 ENV LANG=en_US.UTF-8
