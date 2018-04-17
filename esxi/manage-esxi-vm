@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+
+"""
+Tool to manage ESXi VM using VMware vSphere Automation Python SDK. Supports
+doing the following on an ESXi server (v6.0 is what has been tested):
+
+    Deploy a VM (using ovftool)
+    Set MAC address for VM (using vSphere SDK)
+    Start VM (using vSphere SDK)
+    Stop VM (using vSphere SDK)
+    Destroy VM (using vSphere SDK)
+
+The code is based off samples from:
+    https://github.com/vmware/pyvmomi-community-samples
+
+Dependencies:
+    ovftool (https://www.vmware.com/support/developer/ovf/)
+    pyVmomi (https://github.com/vmware/pyvmomi)
+"""
+
+import argparse
+import sys
+import subprocess
+
+from helpers.common import get_service_instance, get_vm
+from helpers.set_mac import set_mac_address
+from helpers.start_stop_destroy import start_vm, stop_vm, destroy_vm
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+
+    # -h is reserved for 'help'
+    parser.add_argument('-e', '--host',
+                        required=True,
+                        action='store',
+                        help='ESXi vSphere service to connect to')
+
+    parser.add_argument('-u', '--user',
+                        required=True,
+                        action='store',
+                        help='User name to use when connecting to host')
+
+    parser.add_argument('-p', '--password',
+                        required=True,
+                        action='store',
+                        help='Password to use when connecting to host')
+
+    parser.add_argument('-c', '--command',
+                        required=True,
+                        choices=['deploy',
+                                 'setmac',
+                                 'start',
+                                 'stop',
+                                 'destroy'])
+
+    parser.add_argument('-n', '--vm_name',
+                        action='store',
+                        help='Name of the virtual_machine to look for')
+
+    parser.add_argument('-s', '--src_vnet',
+                        action='store',
+                        help='Network name in OVF file')
+
+    parser.add_argument('-d', '--dst_vnet',
+                        action='store',
+                        help='Network name on ESXi server')
+
+    parser.add_argument('-f', '--ova_file',
+                        action='store',
+                        help='Path to ova file to deploy')
+
+    parser.add_argument('-m', '--mac_address',
+                        action='store',
+                        help='MAC address to set for VM')
+
+    args = parser.parse_args()
+
+    if args.command == "deploy" and (args.dst_vnet is None or
+                                     args.src_vnet is None or
+                                     args.ova_file is None):
+        parser.error("deploy command requires dst_vnet, src_vnet, and "
+                     "ova_file parameters")
+
+    if args.command == "setmac" and (args.vm_name is None or
+                                     args.mac_address is None):
+        parser.error("setmac command requires mac_address and "
+                     "vm_name parameters")
+
+    if args.command in ["start", "stop", "destroy"] and args.vm_name is None:
+        parser.error("start/stop/destroy commands requires vm_name parameter")
+
+    return args
+
+
+def deploy(args):
+    """Deploys .ova file using ovftool, to given server, using given
+    credentials, and virtual networking information
+    """
+    # Example deployment command using ovftool:
+    #     ovftool --net:"VM Network"="VLAN1190" damn-small-linux.ova
+    #            vi://akarollil:xxxxxx@esxi-atp0-vcr1.atp.wurldtech.com
+    vnet_mapping_param = '--net:%s=%s' % (args.src_vnet, args.dst_vnet)
+    target_url_param = 'vi://%s:%s@%s' % (args.user, args.password, args.host)
+    subprocess.check_call(['ovftool',  '--noSSLVerify', vnet_mapping_param,
+                    args.ova_file, target_url_param])
+
+
+def main():
+    args = get_args()
+    if args.command == "deploy":
+        deploy(args)
+    else:
+        service_instance = get_service_instance(args.host, args.user,
+                                                args.password)
+        vm = get_vm(service_instance, args.vm_name)
+        if args.command == "setmac":
+            set_mac_address(service_instance, vm, args.mac_address)
+        elif args.command == "start":
+            start_vm(service_instance, vm)
+        elif args.command == "stop":
+            stop_vm(service_instance, vm)
+        elif args.command == "destroy":
+            destroy_vm(service_instance, vm)
+
+if __name__ == "__main__":
+    main()

@@ -10,7 +10,7 @@ declare -A rels=(
 )
 
 declare -A pokyVersion=(
-	[amd64-pyro]='2.3.1'
+	[amd64-pyro]='2.3.2'
 )
 
 declare -A ubuntuVersion=(
