@@ -56,7 +56,7 @@ def get_args():
 
     parser.add_argument('-n', '--vm_name',
                         action='store',
-                        help='Name of the virtual_machine to look for')
+                        help='Name of the virtual_machine')
 
     parser.add_argument('-s', '--src_vnet',
                         action='store',
@@ -78,9 +78,10 @@ def get_args():
 
     if args.command == "deploy" and (args.dst_vnet is None or
                                      args.src_vnet is None or
-                                     args.ova_file is None):
-        parser.error("deploy command requires dst_vnet, src_vnet, and "
-                     "ova_file parameters")
+                                     args.ova_file is None or
+                                     args.vm_name is None):
+        parser.error("deploy command requires dst_vnet, src_vnet, ova_file,"
+                     "and vm_name parameters")
 
     if args.command == "setmac" and (args.vm_name is None or
                                      args.mac_address is None):
@@ -98,12 +99,15 @@ def deploy(args):
     credentials, and virtual networking information
     """
     # Example deployment command using ovftool:
-    #     ovftool --net:"VM Network"="VLAN1190" damn-small-linux.ova
+    #     ovftool --noSSLVerify --name="MyEdgeOS"
+    #            --net:"VM Network"="VLAN1190" damn-small-linux.ova
     #            vi://akarollil:xxxxxx@esxi-atp0-vcr1.atp.wurldtech.com
+    vm_name_param = '--name=%s' % args.vm_name
     vnet_mapping_param = '--net:%s=%s' % (args.src_vnet, args.dst_vnet)
     target_url_param = 'vi://%s:%s@%s' % (args.user, args.password, args.host)
-    subprocess.check_call(['ovftool',  '--noSSLVerify', vnet_mapping_param,
-                    args.ova_file, target_url_param])
+    subprocess.check_call(['ovftool', '--noSSLVerify', vm_name_param,
+                           vnet_mapping_param, args.ova_file,
+                           target_url_param])
 
 
 def main():
